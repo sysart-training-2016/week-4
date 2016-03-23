@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Ant ビルドスクリプト -->
+<project name="sysart-training-2016-week-4" default="dist" basedir=".">
+
+	<property name="tomcat.version" value="8.0.32"/>
+
+	<property name="build.sysclasspath" value="last"/>
+
+	<target name="init">
+		<!-- extract files to avoid javac error: path allows only filesystem resources -->
+		<untar dest="build/lib" src="thirdparty/apache-tomcat-${tomcat.version}.tar.gz" compression="gzip" overwrite="false"/>
+		<path id="project.classpath">
+			<fileset dir="build/lib/apache-tomcat-${tomcat.version}/lib">
+				<include name="servlet-api.jar"/>
+			</fileset>
+		</path>
+	</target>
+
+	<!-- コンパイル -->
+	<target name="compile" depends="init">
+		<mkdir dir="build/classes"/>
+		<javac destdir="build/classes"
+				encoding="UTF-8"
+				classpathref="project.classpath">
+			<src path="src/main/java"/>
+		</javac>
+	</target>
+
+	<!-- 配布ファイル作成 -->
+	<target name="dist" depends="compile">
+		<mkdir dir="dist"/>
+		<war destfile="dist/${ant.project.name}.war"
+				webxml="src/main/resources/WEB-INF/web.xml">
+			<classes dir="build/classes"/>
+		</war>
+	</target>
+
+	<!-- 生成したファイルを削除 -->
+	<target name="clean">
+		<delete dir="build"/>
+		<delete dir="dist"/>
+	</target>
+
+</project>
